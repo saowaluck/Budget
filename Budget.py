@@ -3,20 +3,31 @@ import datetime
 import unittest
 
 
+def get_total_day_from(start, end):
+    days_in_period = end - start
+    first_day_of_period = datetime.timedelta(days=1)
+    return (days_in_period + first_day_of_period).days
+
+
+def get_days_of_month(date):
+    _, days_in_month = calendar.monthrange(date.year, date.month)
+    return days_in_month
+
+
 def find_budget(start, end):
     budget = {9: 1000, 10: 500, 11: 800, 12: 1000}
 
-    diff_date = end - start + datetime.timedelta(days=1)
+    total_day = get_total_day_from(start, end)
 
-    _, days_in_start_month = calendar.monthrange(start.year, start.month)
-    _, days_in_end_month = calendar.monthrange(end.year, end.month)
+    days_in_start_month = get_days_of_month(start)
+    days_in_end_month = get_days_of_month(end)
 
     if start.month == end.month:
-        return round(budget[start.month] / days_in_start_month * diff_date.days, 2)
+        return round(budget[start.month] / days_in_start_month * total_day, 2)
     else:
         first_month_day = days_in_start_month - start.day  + 1
         first_month_budget = first_month_day * (budget[start.month] / days_in_start_month)
-        second_month_budget = (diff_date.days - first_month_day) * (budget[end.month] / days_in_end_month)
+        second_month_budget = (total_day - first_month_day) * (budget[end.month] / days_in_end_month)
 
         return round(first_month_budget + second_month_budget, 2)
 
