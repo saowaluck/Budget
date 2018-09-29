@@ -23,13 +23,15 @@ def find_budget(start, end):
     days_in_end_month = get_days_of_month(end)
 
     if start.month == end.month:
-        return round(budget[start.month] / days_in_start_month * total_day, 2)
+        amount = budget[start.month] / days_in_start_month * total_day
     else:
         first_month_day = days_in_start_month - start.day  + 1
         first_month_budget = first_month_day * (budget[start.month] / days_in_start_month)
         second_month_budget = (total_day - first_month_day) * (budget[end.month] / days_in_end_month)
 
-        return round(first_month_budget + second_month_budget, 2)
+        amount = first_month_budget + second_month_budget
+
+    return round(amount, 2)
 
 
 class TestBudget(unittest.TestCase):
