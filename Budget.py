@@ -14,20 +14,29 @@ def get_days_of_month(date):
     return days_in_month
 
 
+def get_budget_per_day(budget_in_month, days_in_month):
+    return budget_in_month / days_in_month
+
 def find_budget(start, end):
     budget = {9: 1000, 10: 500, 11: 800, 12: 1000}
 
     total_day = get_total_day_from(start, end)
 
-    days_in_start_month = get_days_of_month(start)
-    days_in_end_month = get_days_of_month(end)
+    total_days_in_start_month = get_days_of_month(start)
+    total_days_in_end_month = get_days_of_month(end)
+
+    average_start_budget = get_budget_per_day(budget[start.month], total_days_in_start_month)
 
     if start.month == end.month:
-        amount = budget[start.month] / days_in_start_month * total_day
+        amount = average_start_budget * total_day
     else:
-        first_month_day = days_in_start_month - start.day  + 1
-        first_month_budget = first_month_day * (budget[start.month] / days_in_start_month)
-        second_month_budget = (total_day - first_month_day) * (budget[end.month] / days_in_end_month)
+        days_in_start_month = total_days_in_start_month - start.day + 1
+        first_month_budget = average_start_budget * days_in_start_month
+
+        average_second_month_budget = get_budget_per_day(budget[end.month], total_days_in_end_month)
+
+        days_in_second_month = total_day - days_in_start_month
+        second_month_budget =  average_second_month_budget * days_in_second_month
 
         amount = first_month_budget + second_month_budget
 
