@@ -3,8 +3,8 @@ import datetime
 import unittest
 
 
-def get_total_day_from(start, end):
-    days_in_period = end - start
+def get_total_days_from(first, last):
+    days_in_period = last - first
     first_day_of_period = datetime.timedelta(days=1)
     return (days_in_period + first_day_of_period).days
 
@@ -19,77 +19,102 @@ def get_budget_per_day(budget_in_month, days_in_month):
     return budget_in_month / days_in_month
 
 
-def find_budget(start, end):
+def get_first_month_budget(budget, first, total_days_in_first_month):
+    average_first_budget = get_budget_per_day(
+        budget[first.month],
+        total_days_in_first_month
+    )
+    days_in_first_month = total_days_in_first_month - first.day + 1
+    first_month_budget = average_first_budget * days_in_first_month
+
+    return first_month_budget
+
+
+def get_last_month_budget(
+    budget,
+    first,
+    last,
+    total_days_in_first_month,
+    total_days_in_last_month,
+    total_days,
+):
+    average_last_month_budget = get_budget_per_day(
+        budget[last.month],
+        total_days_in_last_month
+    )
+    days_in_last_month = total_days - (total_days_in_first_month - first.day + 1)
+    last_month_budget = average_last_month_budget * days_in_last_month
+
+    return last_month_budget
+
+# def get_range_month_budget():
+    
+def find_budget(first, last):
     budget = {
         9: 1000,
-        10: 500, 
+        10: 500,
         11: 800,
         12: 1000,
     }
 
-    total_day = get_total_day_from(start, end)
+    total_days = get_total_days_from(first, last)
 
-    total_days_in_start_month = get_days_of_month(start)
-    total_days_in_end_month = get_days_of_month(end)
+    total_days_in_first_month = get_days_of_month(first)
+    total_days_in_last_month = get_days_of_month(last)
+    
+    amount = get_first_month_budget(budget, first, total_days_in_first_month)
 
-    average_start_budget = get_budget_per_day(budget[start.month], total_days_in_start_month)
-    amount = 0
-
-    if start.month == end.month:
-        amount = average_start_budget * total_day
-    else:
-        days_in_start_month = total_days_in_start_month - start.day + 1
-        first_month_budget = average_start_budget * days_in_start_month
-
-        for month in range(start.month+1, end.month):
-            amount += budget[month]
-            total_day -= get_days_of_month(datetime.date(start.year, month, 1))
-        
-        average_end_month_budget = get_budget_per_day(budget[end.month], total_days_in_end_month)
-
-        days_in_end_month = total_day - days_in_start_month
-        end_month_budget =  average_end_month_budget * days_in_end_month
-
-        amount += first_month_budget + end_month_budget
+    for month in range(first.month + 1, last.month):
+        amount += budget[month]
+        total_days -= get_days_of_month(datetime.date(first.year, month, 1))
+    
+    amount += get_last_month_budget(
+        budget,
+        first,
+        last,
+        total_days_in_first_month,
+        total_days_in_last_month,
+        total_days,
+    )
 
     return round(amount, 2)
 
 
 class TestBudget(unittest.TestCase):
     def test_1_sep_to_1_sep_should_return_budget_33_dot_33(self):
-        start = datetime.datetime(2018, 9, 1)
-        end = datetime.datetime(2018, 9, 1)
+        first = datetime.datetime(2018, 9, 1)
+        last = datetime.datetime(2018, 9, 1)
 
-        actual = find_budget(start, end)
+        actual = find_budget(first, last)
         self.assertEqual(actual, 33.33)
 
     def test_1_sep_to_5_sep_should_return_budget_166_dot_67(self):
-        start = datetime.datetime(2018, 9, 1)
-        end = datetime.datetime(2018, 9, 5)
+        first = datetime.datetime(2018, 9, 1)
+        last = datetime.datetime(2018, 9, 5)
 
-        actual = find_budget(start, end)
+        actual = find_budget(first, last)
         self.assertEqual(actual, 166.67)
 
     def test_1_sep_to_10_oct_should_return_budget_1161_dot_29(self):
-        start = datetime.datetime(2018, 9, 1)
-        end = datetime.datetime(2018, 10, 10)
+        first = datetime.datetime(2018, 9, 1)
+        last = datetime.datetime(2018, 10, 10)
 
-        actual = find_budget(start, end)
+        actual = find_budget(first, last)
         self.assertEqual(actual, 1161.29)
 
     def test_3_sep_to_10_oct_should_return_budget_1161_dot_29(self):
-        start = datetime.datetime(2018, 10, 3)
-        end = datetime.datetime(2018, 11, 10)
+        first = datetime.datetime(2018, 10, 3)
+        last = datetime.datetime(2018, 11, 10)
 
-        actual = find_budget(start, end)
+        actual = find_budget(first, last)
         self.assertEqual(actual, 734.41)
 
     # @unittest.skip(reason='Still failed')
     def test_5_oct_to_10_dec_should_return_budget_734_dot_41(self):
-        start = datetime.datetime(2018, 9, 5)
-        end = datetime.datetime(2018, 12, 10)
+        first = datetime.datetime(2018, 9, 5)
+        last = datetime.datetime(2018, 12, 10)
 
-        actual = find_budget(start, end)
+        actual = find_budget(first, last)
         self.assertEqual(actual, 2489.25)
 
 
