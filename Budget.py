@@ -42,13 +42,13 @@ def get_last_month_budget(
         budget[last.month],
         total_days_in_last_month
     )
-    days_in_last_month = total_days - (total_days_in_first_month - first.day + 1)
+    days_in_first_month = total_days_in_first_month - first.day + 1
+    days_in_last_month = total_days - days_in_first_month
     last_month_budget = average_last_month_budget * days_in_last_month
 
     return last_month_budget
 
-# def get_range_month_budget():
-    
+
 def find_budget(first, last):
     budget = {
         9: 1000,
@@ -61,13 +61,13 @@ def find_budget(first, last):
 
     total_days_in_first_month = get_days_of_month(first)
     total_days_in_last_month = get_days_of_month(last)
-    
+
     amount = get_first_month_budget(budget, first, total_days_in_first_month)
 
     for month in range(first.month + 1, last.month):
         amount += budget[month]
         total_days -= get_days_of_month(datetime.date(first.year, month, 1))
-    
+
     amount += get_last_month_budget(
         budget,
         first,
